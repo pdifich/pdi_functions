@@ -85,8 +85,15 @@ namespace pdi{
 
 	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_){
 		cv::Mat data = data_;
-		if( data.depth() == CV_8U )
-			data.convertTo(data, CV_32F, 1./255);
+		switch(data_.depth()){
+			case CV_8U: data.convertTo(data, CV_32F, 1./255, 0); break;
+			case CV_8S: data.convertTo(data, CV_32F, 1./255, 0.5); break;
+			case CV_16U: data.convertTo(data, CV_32F, 1./65535, 0); break;
+			case CV_16S: data.convertTo(data, CV_32F, 1./65535, 0.5); break;
+			case CV_32S: data.convertTo(data, CV_32F, 1./(2*2147483647u+1), 0.5); break;
+			case CV_32F: break; //data.convertTo(data, CV_32F, 1); break;
+			case CV_64F: data.convertTo(data, CV_32F, 1); break;
+		}
 
 		for(int K=1; K<std::max(data.rows, data.cols); ++K){
 			cv::line(
