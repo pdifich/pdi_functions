@@ -46,8 +46,8 @@ namespace pdi{
 	cv::Mat histogram(const cv::Mat &image, int levels, const cv::Mat &mask=cv::Mat());
 
 	/**Dibuja un gráfico de líneas en el canvas.
-	 * \param data vector fila de valores flotantes,
-	 * rango [0,1] que se mapean del borde inferior al superior.
+	 * \param data vector con los valores a graficar,
+	 * rango [0,1] o [0,255] que se mapean del borde inferior al superior.
 	 */
 	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data);
 
