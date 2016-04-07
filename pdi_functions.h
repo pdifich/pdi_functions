@@ -51,6 +51,11 @@ namespace pdi{
 	 */
 	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data);
 
+	template<class T>
+	cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data){
+		return draw_graph(canvas, cv::Mat(data));
+	}
+
 	/**Copia la imagen a una cuyas dimensiones hacen eficiente la fft
 	 */
 	cv::Mat optimum_size(const cv::Mat &image);
