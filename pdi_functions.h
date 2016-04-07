@@ -189,8 +189,13 @@ namespace pdi{
 			case CV_16U: data.convertTo(data, CV_32F, 1./65535, 0); break;
 			case CV_16S: data.convertTo(data, CV_32F, 1./65535, 0.5); break;
 			case CV_32S: data.convertTo(data, CV_32F, 1./(2*2147483647u+1), 0.5); break;
-			case CV_32F: break; //data.convertTo(data, CV_32F, 1); break;
-			case CV_64F: data.convertTo(data, CV_32F, 1); break;
+			case CV_32F:
+				 cv::normalize(data, data, 0, 1, CV_MINMAX);
+				 break;
+			case CV_64F:
+				data.convertTo(data, CV_32F, 1);
+				cv::normalize(data, data, 0, 1, CV_MINMAX);
+				break;
 		}
 
 		for(int K=1; K<std::max(data.rows, data.cols); ++K){
