@@ -64,7 +64,7 @@ namespace pdi{
 		swap_copy(top_right, bottom_left);
 	}
 
-	cv::Mat histogram(const cv::Mat &image, int levels, const cv::Mat mask){
+	cv::Mat histogram(const cv::Mat &image, int levels, const cv::Mat &mask){
 		const int channels = 0;
 		float range[] = {0, 256};
 		const float *ranges[] = {range};
@@ -83,8 +83,12 @@ namespace pdi{
 		return hist;
 	}
 
-	void draw_graph(cv::Mat &canvas, const cv::Mat &data){
-		for(int K=1; K<data.rows; ++K){
+	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_){
+		cv::Mat data = data_;
+		if( data.depth() == CV_8U )
+			data.convertTo(data, CV_32F, 1./255);
+
+		for(int K=1; K<std::max(data.rows, data.cols); ++K){
 			cv::line(
 				canvas,
 				cv::Point( K-1, canvas.rows*(1-data.at<float>(K-1)) ),
@@ -92,6 +96,8 @@ namespace pdi{
 				cv::Scalar::all(255)
 			);
 		}
+
+		return canvas;
 	}
 
 	cv::Mat optimum_size(const cv::Mat &image){

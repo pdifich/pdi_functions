@@ -49,7 +49,7 @@ namespace pdi{
 	 * \param data vector fila de valores flotantes,
 	 * rango [0,1] que se mapean del borde inferior al superior.
 	 */
-	void draw_graph(cv::Mat &canvas, const cv::Mat &data);
+	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data);
 
 	/**Copia la imagen a una cuyas dimensiones hacen eficiente la fft
 	 */
