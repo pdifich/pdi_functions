@@ -47,7 +47,7 @@ namespace pdi{
 
 	/**Dibuja un gráfico de líneas en el canvas.
 	 * \param data vector con los valores a graficar,
-	 * rango [0,1] o [0,255] que se mapean del borde inferior al superior.
+	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
 	 */
 	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data);
 
