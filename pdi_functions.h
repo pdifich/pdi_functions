@@ -5,6 +5,7 @@
 #define PDI_FUNCTIONS_H 
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 /**Funciones auxiliares
  */
@@ -51,8 +52,11 @@ namespace pdi{
 	 */
 	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data);
 
+	/**Dibuja un gráfico de líneas en el canvas.
+	 * wrapper para aceptar std::vector
+	 */
 	template<class T>
-	cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data){
+	inline cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data){
 		return draw_graph(canvas, cv::Mat(data));
 	}
 
