@@ -1,1 +1,6 @@
 Conjunto de funciones auxiliares.
+Sólo se necesita incluir el header.
+
+Las funciones viven en el namespace pdi,
+por lo que debe anteponer pdi::, o sino
+using namespace pdi;
