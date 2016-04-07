@@ -1,6 +1,13 @@
 Conjunto de funciones auxiliares.
 Sólo se necesita incluir el header.
 
+Se provee además de un script para la creación de los ejecutables, y de funciones para gdb que permiten visualizar las matrices.
+
+
+
 Las funciones viven en el namespace pdi,
 por lo que debe anteponer pdi::, o sino
 using namespace pdi;
+
+
+
