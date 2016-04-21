@@ -79,6 +79,12 @@ namespace pdi{
 	 */
 	cv::Mat mosaic( const cv::Mat &a, const cv::Mat &b, bool vertical=true );
 
+	/**Concatena las imágenes en el vector
+	 * Los tamaños deberían concordar.
+	 \param r: número de filas
+	 */
+	cv::Mat mosaic( const std::vector<cv::Mat> &images, size_t r);
+
 	/**Devuelve los mapeos para rgb.
 	 * Las matrices son de tipo 8U
 	 */
@@ -261,6 +267,22 @@ namespace pdi{
 			cv::vconcat(a, b, big); //sin documentación
 		else
 			cv::hconcat(a, b, big); //sin documentación
+
+		return big;
+	}
+
+	cv::Mat mosaic( const std::vector<cv::Mat> &images, size_t r){
+		if(images.empty()) return cv::Mat();
+		size_t c = images.size()/r + ((images.size()%r)?1:0);
+
+		size_t rows = images[0].rows, cols = images[0].cols;
+		cv::Mat big = cv::Mat::zeros(r*rows, c*cols, images[0].type()); //tamaño total
+
+		for(size_t K=0; K<images.size(); ++K){
+			cv::Rect submatrix ( (K%c)*cols, (K/c)*rows, images[K].cols, images[K].rows );
+			cv::Mat region = cv::Mat(big, submatrix); //región donde pegar
+			images[K].copyTo(region);
+		}
 
 		return big;
 	}
