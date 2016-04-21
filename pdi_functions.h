@@ -83,7 +83,7 @@ namespace pdi{
 	 * Los tamaños deberían concordar.
 	 \param r: número de filas
 	 */
-	cv::Mat mosaic( const std::vector<cv::Mat> &images, size_t r);
+	cv::Mat mosaic( const std::vector<cv::Mat> &images, size_t r=1);
 
 	/**Devuelve los mapeos para rgb.
 	 * Las matrices son de tipo 8U
