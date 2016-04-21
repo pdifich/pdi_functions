@@ -271,7 +271,7 @@ namespace pdi{
 		return big;
 	}
 
-	cv::Mat mosaic( const std::vector<cv::Mat> &images, size_t r){
+	inline cv::Mat mosaic( const std::vector<cv::Mat> &images, size_t r){
 		if(images.empty()) return cv::Mat();
 		size_t c = images.size()/r + ((images.size()%r)?1:0);
 
