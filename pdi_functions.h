@@ -50,7 +50,14 @@ namespace pdi{
 	 * \param data vector con los valores a graficar,
 	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
 	 */
-	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data);
+	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255));
+
+	/**Dibuja un gráfico de líneas en el canvas.
+	 * \param data vector con los valores a graficar,
+	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
+	 * \param color, color de las lí
+	 */
+	cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255));
 
 	/**Dibuja un gráfico de líneas en el canvas.
 	 * wrapper para aceptar std::vector
@@ -103,6 +110,12 @@ namespace pdi{
 	\param filtro de magnitud, descentrado.
 	*/
 	cv::Mat filter(cv::Mat image, cv::Mat filtro);
+
+
+	/**
+	\param corte frecuencia de corte relativa. 0.5 corresponde un círculo inscripto
+	 */
+	cv::Mat filter_ideal(size_t rows, size_t cols, double corte);
 }
 
 
@@ -155,13 +168,44 @@ namespace pdi{
 	}
 
 	inline void centre(cv::Mat &image){
-		int cx = image.cols/2, cy = image.rows/2;
+		int
+			cx = image.cols/2,
+			cy = image.rows/2,
+			w = cx,
+			h = cy;
+		int
+			off_x = image.cols%2,
+			off_y = image.rows%2;
 		//cuadrantes
 		cv::Mat
-			top_left = cv::Mat(image, cv::Rect(0,0,cx,cy)),
-			top_right = cv::Mat(image, cv::Rect(cx,0,cx,cy)),
-			bottom_left = cv::Mat(image, cv::Rect(0,cy,cx,cy)),
-			bottom_right = cv::Mat(image, cv::Rect(cx,cy,cx,cy));
+			top_left = cv::Mat(
+				image,
+				cv::Rect(
+					0, 0,
+					w, h
+				)
+			),
+			top_right = cv::Mat(
+				image,
+				cv::Rect(
+					cx+off_x, 0,
+					w, h
+				)
+			),
+			bottom_left = cv::Mat(
+				image,
+				cv::Rect(
+					0, cy+off_y,
+					w, h
+				)
+			),
+			bottom_right = cv::Mat(
+				image,
+				cv::Rect(
+					cx+off_x, cy+off_y,
+					w, h
+				)
+			);
 
 		//intercambia los cuadrantes
 		swap_copy(top_left, bottom_right);
@@ -187,7 +231,7 @@ namespace pdi{
 		return hist;
 	}
 
-	inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_){
+	inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_, cv::Scalar color){
 		cv::Mat data = data_;
 		switch(data_.depth()){
 			case CV_8U: data.convertTo(data, CV_32F, 1./255, 0); break;
@@ -209,11 +253,16 @@ namespace pdi{
 				canvas,
 				cv::Point( K-1, canvas.rows*(1-data.at<float>(K-1)) ),
 				cv::Point( K, canvas.rows*(1-data.at<float>(K)) ),
-				cv::Scalar::all(255)
+				color
 			);
 		}
 
 		return canvas;
+	}
+
+	inline cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color){
+		cv::Mat canvas = cv::Mat::zeros( 255, std::max(data.rows, data.cols), CV_8UC(3) );
+		return draw_graph(canvas, data, color);
 	}
 
 	template<class T>
@@ -331,6 +380,41 @@ namespace pdi{
 		cv::Mat result;
 		cv::idft(transformada, result, cv::DFT_REAL_OUTPUT | cv::DFT_SCALE);
 		return result;
+	}
+
+	namespace{
+		template <class T>
+		inline T square(T x){
+			return x*x;
+		}
+		double distance2( double x1, double y1, double x2, double y2 ){
+			return square(x2-x1) + square(y2-y1);
+		}
+	}
+
+	inline cv::Mat filter_ideal(size_t rows, size_t cols, double corte){
+		cv::Mat
+			magnitud = cv::Mat::zeros(rows, cols, CV_32F);
+		if(cols%2==1 and rows%2==1) //impar, el centro cae en un píxel
+			cv::circle(
+				magnitud,
+				cv::Point(cols/2,rows/2), //punto central
+				rows*corte, //radio
+				cv::Scalar::all(1),
+				-1 //círculo relleno
+			);
+		else{
+			double limit = square(corte*rows);
+			for(size_t K=0; K<rows; ++K)
+				for(size_t L=0; L<cols; ++L){
+					double d2 = distance2(K+.5, L+.5, rows/2, cols/2);
+					if(d2 <= limit)
+						magnitud.at<float>(K,L) = 1;
+				}
+		}
+
+		centre(magnitud);
+		return magnitud;
 	}
 
 }
