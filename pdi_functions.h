@@ -141,6 +141,7 @@ namespace pdi{
 
 //Implementation
 #include <fstream>
+#include <limits>
 namespace pdi{
 	inline void clamp(cv::Mat& mat, double lowerBound, double upperBound){
 		cv::min(cv::max(mat, lowerBound), upperBound, mat);
@@ -277,7 +278,7 @@ namespace pdi{
 	){
 		cv::Mat canvas = cv::Mat::zeros(256, 256, CV_8UC(3) );
 		//encontrar el máximo valor entre todos los arreglos
-		double max = std::numeric_limits<double>::lowest();
+		double max = -std::numeric_limits<double>::max();
 		for(size_t K=0; K<data.size(); ++K){
 			double max_K;
 			cv::minMaxLoc(data[K], NULL, &max_K);
