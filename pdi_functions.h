@@ -50,7 +50,7 @@ namespace pdi{
 	 * \param data vector con los valores a graficar,
 	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
 	 */
-	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255));
+	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255), double scale = 1);
 
 	/**Dibuja un gráfico de líneas en el canvas.
 	 * \param data vector con los valores a graficar,
@@ -58,6 +58,13 @@ namespace pdi{
 	 * \param color, color de las lí
 	 */
 	cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255));
+
+	/**Devuelve un gráfico de líneas comparativo.
+	 */
+	cv::Mat draw_graph(
+		const std::vector<cv::Mat> &data,
+		const std::vector<cv::Scalar> colour
+	);
 
 	/**Dibuja un gráfico de líneas en el canvas.
 	 * wrapper para aceptar std::vector
@@ -252,7 +259,29 @@ namespace pdi{
 		return hist;
 	}
 
-	inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_, cv::Scalar color){
+	inline
+	cv::Mat draw_graph(
+		const std::vector<cv::Mat> &data,
+		const std::vector<cv::Scalar> colour
+	){
+		cv::Mat canvas = cv::Mat::zeros(256, 256, CV_8UC(3) );
+		//encontrar el máximo valor entre todos los arreglos
+		double max = std::numeric_limits<double>::lowest();
+		for(size_t K=0; K<data.size(); ++K){
+			double max_K;
+			cv::minMaxLoc(data[K], NULL, &max_K);
+			max = std::max(max, max_K);
+		}
+
+		//graficar
+		for(size_t K=0; K<data.size(); ++K)
+			draw_graph(canvas, data[K], colour[K], 1/max);
+
+		return canvas;
+	}
+
+
+	inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_, cv::Scalar color, double scale){
 		cv::Mat data = data_;
 		switch(data_.depth()){
 			case CV_8U: data.convertTo(data, CV_32F, 1./255, 0); break;
@@ -271,8 +300,8 @@ namespace pdi{
 		for(int K=1; K<std::max(data.rows, data.cols); ++K){
 			cv::line(
 				canvas,
-				cv::Point( (K-1)*stretch, canvas.rows*(1-data.at<float>(K-1)) ),
-				cv::Point( K*stretch, canvas.rows*(1-data.at<float>(K)) ),
+				cv::Point( (K-1)*stretch, canvas.rows*(1-scale*data.at<float>(K-1)) ),
+				cv::Point( K*stretch, canvas.rows*(1-scale*data.at<float>(K)) ),
 				color
 			);
 		}
@@ -282,8 +311,9 @@ namespace pdi{
 
 	inline cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color){
 		cv::Mat canvas = cv::Mat::zeros(256, 256, CV_8UC(3) );
-		cv::normalize(data, data, 0, 1, CV_MINMAX);
-		return draw_graph(canvas, data, color);
+		double max;
+		cv::minMaxLoc(data, NULL, &max);
+		return draw_graph(canvas, data, color, 1/max);
 	}
 
 	template<class T>
