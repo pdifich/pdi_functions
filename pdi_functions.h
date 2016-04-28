@@ -49,15 +49,12 @@ namespace pdi{
 	/**Dibuja un gráfico de líneas en el canvas.
 	 * \param data vector con los valores a graficar,
 	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
-	 */
-	cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255), double scale = 1);
-
-	/**Dibuja un gráfico de líneas en el canvas.
-	 * \param data vector con los valores a graficar,
-	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
 	 * \param color, color de las lí
 	 */
-	cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color = cv::Scalar::all(255));
+	cv::Mat draw_graph(
+		const cv::Mat &data,
+		cv::Scalar color = cv::Scalar::all(255)
+	);
 
 	/**Devuelve un gráfico de líneas comparativo.
 	 */
@@ -66,11 +63,6 @@ namespace pdi{
 		const std::vector<cv::Scalar> colour
 	);
 
-	/**Dibuja un gráfico de líneas en el canvas.
-	 * wrapper para aceptar std::vector
-	 */
-	template<class T>
-	cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data);
 
 	/**Copia la imagen a una cuyas dimensiones hacen eficiente la fft
 	 */
@@ -259,6 +251,25 @@ namespace pdi{
 		return hist;
 	}
 
+	namespace{
+		/**Dibuja un gráfico de líneas en el canvas. Función auxiliar
+		 * \param data vector con los valores a graficar,
+		 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
+		 */
+		cv::Mat draw_graph(
+			cv::Mat &canvas,
+			const cv::Mat &data,
+			cv::Scalar color = cv::Scalar::all(255),
+			double scale = 1
+		);
+
+		/**Dibuja un gráfico de líneas en el canvas.
+		 * wrapper para aceptar std::vector
+		 */
+		template<class T>
+		cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data);
+	}
+
 	inline
 	cv::Mat draw_graph(
 		const std::vector<cv::Mat> &data,
@@ -281,32 +292,40 @@ namespace pdi{
 	}
 
 
-	inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_, cv::Scalar color, double scale){
-		cv::Mat data = data_;
-		switch(data_.depth()){
-			case CV_8U: data.convertTo(data, CV_32F, 1./255, 0); break;
-			case CV_8S: data.convertTo(data, CV_32F, 1./255, 0.5); break;
-			case CV_16U: data.convertTo(data, CV_32F, 1./65535, 0); break;
-			case CV_16S: data.convertTo(data, CV_32F, 1./65535, 0.5); break;
-			case CV_32S: data.convertTo(data, CV_32F, 1./(2*2147483647u+1), 0.5); break;
-			case CV_32F:
-				 break;
-			case CV_64F:
-				data.convertTo(data, CV_32F, 1);
-				break;
+	namespace {
+		inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_, cv::Scalar color, double scale){
+			cv::Mat data = data_;
+			switch(data_.depth()){
+				case CV_8U: data.convertTo(data, CV_32F, 1./255, 0); break;
+				case CV_8S: data.convertTo(data, CV_32F, 1./255, 0.5); break;
+				case CV_16U: data.convertTo(data, CV_32F, 1./65535, 0); break;
+				case CV_16S: data.convertTo(data, CV_32F, 1./65535, 0.5); break;
+				case CV_32S: data.convertTo(data, CV_32F, 1./(2*2147483647u+1), 0.5); break;
+				case CV_32F:
+					 break;
+				case CV_64F:
+					data.convertTo(data, CV_32F, 1);
+					break;
+			}
+
+			double stretch = double(canvas.cols-1)/(std::max(data.rows, data.cols)-1);
+			for(int K=1; K<std::max(data.rows, data.cols); ++K){
+				cv::line(
+					canvas,
+					cv::Point( (K-1)*stretch, canvas.rows*(1-scale*data.at<float>(K-1)) ),
+					cv::Point( K*stretch, canvas.rows*(1-scale*data.at<float>(K)) ),
+					color
+				);
+			}
+
+			return canvas;
 		}
 
-		double stretch = double(canvas.cols-1)/(std::max(data.rows, data.cols)-1);
-		for(int K=1; K<std::max(data.rows, data.cols); ++K){
-			cv::line(
-				canvas,
-				cv::Point( (K-1)*stretch, canvas.rows*(1-scale*data.at<float>(K-1)) ),
-				cv::Point( K*stretch, canvas.rows*(1-scale*data.at<float>(K)) ),
-				color
-			);
+		template<class T>
+		inline cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data){
+			return draw_graph(canvas, cv::Mat(data));
 		}
 
-		return canvas;
 	}
 
 	inline cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color){
@@ -314,11 +333,6 @@ namespace pdi{
 		double max;
 		cv::minMaxLoc(data, NULL, &max);
 		return draw_graph(canvas, data, color, 1/max);
-	}
-
-	template<class T>
-	inline cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data){
-		return draw_graph(canvas, cv::Mat(data));
 	}
 
 	inline cv::Mat optimum_size(const cv::Mat &image){
