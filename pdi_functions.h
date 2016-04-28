@@ -261,19 +261,18 @@ namespace pdi{
 			case CV_16S: data.convertTo(data, CV_32F, 1./65535, 0.5); break;
 			case CV_32S: data.convertTo(data, CV_32F, 1./(2*2147483647u+1), 0.5); break;
 			case CV_32F:
-				 cv::normalize(data, data, 0, 1, CV_MINMAX);
 				 break;
 			case CV_64F:
 				data.convertTo(data, CV_32F, 1);
-				cv::normalize(data, data, 0, 1, CV_MINMAX);
 				break;
 		}
 
+		double stretch = double(canvas.cols-1)/(std::max(data.rows, data.cols)-1);
 		for(int K=1; K<std::max(data.rows, data.cols); ++K){
 			cv::line(
 				canvas,
-				cv::Point( K-1, canvas.rows*(1-data.at<float>(K-1)) ),
-				cv::Point( K, canvas.rows*(1-data.at<float>(K)) ),
+				cv::Point( (K-1)*stretch, canvas.rows*(1-data.at<float>(K-1)) ),
+				cv::Point( K*stretch, canvas.rows*(1-data.at<float>(K)) ),
 				color
 			);
 		}
@@ -282,7 +281,8 @@ namespace pdi{
 	}
 
 	inline cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color){
-		cv::Mat canvas = cv::Mat::zeros( 255, std::max(data.rows, data.cols), CV_8UC(3) );
+		cv::Mat canvas = cv::Mat::zeros(256, 256, CV_8UC(3) );
+		cv::normalize(data, data, 0, 1, CV_MINMAX);
 		return draw_graph(canvas, data, color);
 	}
 
