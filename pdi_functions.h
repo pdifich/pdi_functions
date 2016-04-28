@@ -112,10 +112,31 @@ namespace pdi{
 	cv::Mat filter(cv::Mat image, cv::Mat filtro);
 
 
-	/**
+	/**Devuelve una imagen descentrada de la magnitud de un filtro ideal
 	\param corte frecuencia de corte relativa. 0.5 corresponde un círculo inscripto
 	 */
 	cv::Mat filter_ideal(size_t rows, size_t cols, double corte);
+
+	/**Devuelve una imagen descentrada de la magnitud de un filtro butterworth
+	 */
+	cv::Mat filter_butterworth(size_t rows, size_t cols, double corte, size_t order);
+
+	/**Devuelve una imagen descentrada de la magnitud de un filtro gaussiano
+	 */
+	cv::Mat filter_gaussian(size_t rows, size_t cols, double corte);
+
+
+	/**Devuelve una matriz compleja dada su magnitud y fase
+	 */
+	cv::Mat polar_combine(const cv::Mat &magnitud, const cv::Mat &phase);
+
+	/**Dada una matriz compleja, devuelve su magnitud
+	 */
+	cv::Mat magnitude(const cv::Mat &image);
+
+	/**Dada una matriz compleja, devuelve su fase
+	 */
+	cv::Mat phase(const cv::Mat &image);
 }
 
 
@@ -417,6 +438,67 @@ namespace pdi{
 		return magnitud;
 	}
 
+	inline cv::Mat filter_butterworth(size_t rows, size_t cols, double corte, size_t order){
+		//corte = w en imagen de lado 1
+		//1 \over 1 + {D \over w}^{2n}
+		cv::Mat
+			magnitud = cv::Mat::zeros(rows, cols, CV_32F);
+
+		corte *= rows;
+		//corte *= corte;
+		for(size_t K=0; K<rows; ++K)
+			for(size_t L=0; L<cols; ++L){
+				double d2 = distance2(K+.5, L+.5, rows/2., cols/2.);
+				magnitud.at<float>(K,L) = 1.0/(1 + std::pow(d2/(corte*corte), order) );
+			}
+
+		centre(magnitud);
+		return magnitud;
+	}
+
+	inline cv::Mat filter_gaussian(size_t rows, size_t cols, double corte){
+		//corte es sigma en imagen de lado 1
+
+		cv::Mat
+			magnitud = cv::Mat::zeros(rows, cols, CV_32F);
+
+		corte *= rows;
+		//corte *= corte;
+		for(size_t K=0; K<rows; ++K)
+			for(size_t L=0; L<cols; ++L){
+				double distance = distance2(K+.5, L+.5, rows/2., cols/2.);
+				magnitud.at<float>(K,L) = std::exp(-distance/(2*corte*corte));
+			}
+
+		centre(magnitud);
+		return magnitud;
+	}
+
+	inline cv::Mat polar_combine(const cv::Mat &magnitud, const cv::Mat &phase){
+		cv::Mat x[2], result;
+		cv::polarToCart(magnitud, phase, x[0], x[1]);
+		cv::merge(x, 2, result);
+		return result;
+	}
+
+	inline
+	cv::Mat magnitude(const cv::Mat &image){
+		cv::Mat planes[2];
+		cv::split(image, planes);
+
+		cv::Mat result;
+		cv::magnitude(planes[0], planes[1], result);
+		return result;
+	}
+
+	inline
+	cv::Mat phase(const cv::Mat &image){
+		cv::Mat phase, planes[2];
+		cv::split(image, planes);
+		cv::phase(planes[0], planes[1], phase);
+
+		return phase;
+	}
 }
 
 #endif /* PDI_FUNCTIONS_H */
