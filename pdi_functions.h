@@ -136,6 +136,10 @@ namespace pdi{
 	/**Dada una matriz compleja, devuelve su fase
 	 */
 	cv::Mat phase(const cv::Mat &image);
+
+	/**Devuelve un filtro de desenfoque dadas las velocidades de desplazamiento horizontal y vertical
+	 */
+	cv::Mat motion_blur(cv::Size size, double a, double b);
 }
 
 
@@ -543,6 +547,35 @@ namespace pdi{
 		cv::phase(planes[0], planes[1], phase);
 
 		return phase;
+	}
+
+	//a = velocidad en x
+	//b = velocidad en y
+	inline
+	cv::Mat motion_blur(cv::Size size, double a, double b){
+		cv::Mat transformation =
+			cv::Mat::zeros(size, CV_32FC(2));
+
+		int
+			rows = transformation.rows,
+			cols = transformation.cols;
+
+		const std::complex<float> I{0,1};
+		//fase exp(j\pi (ua + vb))
+		//magnitud \frac{ \sin(\pi(ua+vb)) }{ \pi (ua+vb) }
+		for(int K=0; K<rows; ++K)
+			for(int L=0; L<cols; ++L){
+				double
+					u = (L-cols/2)/(double)cols,
+					v = (K-rows/2)/(double)rows;
+
+				float pi_v = M_PI*(u*a+v*b);
+				float mag = (pi_v)? sin(pi_v)/pi_v: 1; //lim{x->0} sin(x)/x
+				transformation.at< std::complex<float> >(K,L) = mag*exp(I*pi_v);
+			}
+
+		center(transformation);
+		return transformation;
 	}
 }
 
