@@ -571,7 +571,7 @@ namespace pdi{
 				transformation.at< std::complex<float> >(K,L) = mag*exp(I*pi_v);
 			}
 
-		center(transformation);
+		centre(transformation);
 		return transformation;
 	}
 }
