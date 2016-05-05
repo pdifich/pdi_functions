@@ -101,9 +101,6 @@ namespace pdi{
 	*/
 	cv::Mat rotate(cv::Mat image, double angle);
 
-	cv::Mat dft(cv::Mat image);
-	cv::Mat idft(cv::Mat image);
-
 	/**Realiza el filtrado en frecuencia
 	\param image matriz 32F, un canal.
 	\param filtro de magnitud, descentrado.
