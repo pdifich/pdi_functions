@@ -288,7 +288,7 @@ namespace pdi{
 
 		//graficar
 		for(size_t K=0; K<data.size(); ++K)
-			draw_graph(canvas, data[K], colour[K], 1/max);
+			draw_graph(canvas, data[K], colour[K], 1);
 
 		return canvas;
 	}
@@ -297,6 +297,7 @@ namespace pdi{
 	namespace {
 		inline cv::Mat draw_graph(cv::Mat &canvas, const cv::Mat &data_, cv::Scalar color, double scale){
 			cv::Mat data = data_;
+			//convert to range [0;1], type float
 			switch(data_.depth()){
 				case CV_8U: data.convertTo(data, CV_32F, 1./255, 0); break;
 				case CV_8S: data.convertTo(data, CV_32F, 1./255, 0.5); break;
@@ -310,6 +311,7 @@ namespace pdi{
 					break;
 			}
 
+			//stretch the graph to take all the columns in the canvas
 			double stretch = double(canvas.cols-1)/(std::max(data.rows, data.cols)-1);
 			for(int K=1; K<std::max(data.rows, data.cols); ++K){
 				cv::line(
@@ -332,9 +334,7 @@ namespace pdi{
 
 	inline cv::Mat draw_graph(const cv::Mat &data, cv::Scalar color){
 		cv::Mat canvas = cv::Mat::zeros(256, 256, CV_8UC(3) );
-		double max;
-		cv::minMaxLoc(data, NULL, &max);
-		return draw_graph(canvas, data, color, 1/max);
+		return draw_graph(canvas, data, color, 1);
 	}
 
 	inline cv::Mat optimum_size(const cv::Mat &image){
