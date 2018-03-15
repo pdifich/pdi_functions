@@ -436,7 +436,7 @@ namespace pdi{
 		cv::normalize(magnitud, magnitud, 0, 1, cv::NORM_MINMAX);
 
 		//centrado
-		centre(magnitud);
+		magnitud = fft_shift(magnitud);
 
 		return magnitud;
 	}
@@ -551,7 +551,7 @@ namespace pdi{
 				}
 		}
 
-		centre(magnitud);
+		magnitud = ifft_shift(magnitud);
 		return magnitud;
 	}
 
@@ -569,7 +569,7 @@ namespace pdi{
 				magnitud.at<float>(K,L) = 1.0/(1 + std::pow(d2/(corte*corte), order) );
 			}
 
-		centre(magnitud);
+		magnitud = ifft_shift(magnitud);
 		return magnitud;
 	}
 
@@ -587,7 +587,7 @@ namespace pdi{
 				magnitud.at<float>(K,L) = std::exp(-distance/(2*corte*corte));
 			}
 
-		centre(magnitud);
+		magnitud = ifft_shift(magnitud);
 		return magnitud;
 	}
 
@@ -642,7 +642,7 @@ namespace pdi{
 				transformation.at< std::complex<float> >(K,L) = mag*exp(I*pi_v);
 			}
 
-		centre(transformation);
+		transformation = ifft_shift(transformation);
 		return transformation;
 	}
 }
