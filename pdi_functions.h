@@ -555,7 +555,7 @@ namespace pdi{
 		//corte *= corte;
 		for(size_t K=0; K<rows; ++K)
 			for(size_t L=0; L<cols; ++L){
-				double d2 = distance2(K+.5, L+.5, rows/2., cols/2.);
+				double d2 = distance2(K, L, rows/2, cols/2);
 				magnitud.at<float>(K,L) = 1.0/(1 + std::pow(d2/(corte*corte), order) );
 			}
 
@@ -573,7 +573,7 @@ namespace pdi{
 		//corte *= corte;
 		for(size_t K=0; K<rows; ++K)
 			for(size_t L=0; L<cols; ++L){
-				double distance = distance2(K+.5, L+.5, rows/2., cols/2.);
+				double distance = distance2(K, L, rows/2, cols/2);
 				magnitud.at<float>(K,L) = std::exp(-distance/(2*corte*corte));
 			}
 
