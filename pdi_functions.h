@@ -189,7 +189,8 @@ namespace pdi{
 		temp.copyTo(b);
 	}
 
-	inline void centre(cv::Mat &image){
+	inline cv::Mat fft_shift(const cv::Mat &image){
+		cv::Mat result = cv::Mat::zeros(image.size(), image.type());
 		int
 			cx = image.cols/2,
 			cy = image.rows/2,
@@ -198,6 +199,29 @@ namespace pdi{
 		int
 			off_x = image.cols%2,
 			off_y = image.rows%2;
+
+		//cuadrante 1
+		image(cv::Rect( 0, 0, w+off_x, h+off_y).copyTo(
+			result(cv::Rect( cx, cy, w+off_x, h+off_y))
+		);
+		//cuadrante 2
+		image(cv::Rect( cx+off_x, 0, w, h+off_y)).copyTo(
+			result(cv::Rect( 0, cy, w, h+off_y))
+		);
+		//cuadrante 3
+		image(cv::Rect( cx+off_x, cy+off_y, w, h)).copyTo(
+			result(cv::Rect( 0, 0, w, h))
+		);
+		//cuadrante 4
+		image(cv::Rect( 0, cy+off_y, w+off_x, h)).copyTo(
+			result(cv::Rect( cx, 0, w+off_x, h))
+		);
+
+		image = result;
+		return;
+	}
+
+	inline void centre(cv::Mat &image){
 		//cuadrantes
 		cv::Mat
 			top_left = cv::Mat(
@@ -465,7 +489,7 @@ namespace pdi{
 		if(cols%2==1 and rows%2==1) //impar, el centro cae en un píxel
 			cv::circle(
 				magnitud,
-				cv::Point(cols/2,rows/2), //punto central
+				cv::Point(cols/2, rows/2), //punto central
 				rows*corte, //radio
 				cv::Scalar::all(1),
 				-1 //círculo relleno
