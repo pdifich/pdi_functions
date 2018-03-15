@@ -189,6 +189,8 @@ namespace pdi{
 		temp.copyTo(b);
 	}
 
+	/**Shift the zero-frequency component to the center of the spectrum.
+	 */
 	inline cv::Mat fft_shift(const cv::Mat &image){
 		cv::Mat result = cv::Mat::zeros(image.size(), image.type());
 		int
@@ -200,28 +202,73 @@ namespace pdi{
 			off_x = image.cols%2,
 			off_y = image.rows%2;
 
-		//cuadrante 1
-		image(cv::Rect( 0, 0, w+off_x, h+off_y).copyTo(
-			result(cv::Rect( cx, cy, w+off_x, h+off_y))
+		//cuadrante 1 -> 3
+		image(cv::Rect(0, 0, w+off_x, h+off_y)).copyTo(
+			result(cv::Rect(cx, cy, w+off_x, h+off_y))
 		);
-		//cuadrante 2
-		image(cv::Rect( cx+off_x, 0, w, h+off_y)).copyTo(
-			result(cv::Rect( 0, cy, w, h+off_y))
+		//cuadrante 2 -> 4
+		image(cv::Rect(cx+off_x, 0, w, h+off_y)).copyTo(
+			result(cv::Rect(0, cy, w, h+off_y))
 		);
-		//cuadrante 3
-		image(cv::Rect( cx+off_x, cy+off_y, w, h)).copyTo(
-			result(cv::Rect( 0, 0, w, h))
+		//cuadrante 3 -> 1
+		image(cv::Rect(cx+off_x, cy+off_y, w, h)).copyTo(
+			result(cv::Rect(0, 0, w, h))
 		);
-		//cuadrante 4
-		image(cv::Rect( 0, cy+off_y, w+off_x, h)).copyTo(
-			result(cv::Rect( cx, 0, w+off_x, h))
+		//cuadrante 4 -> 2
+		image(cv::Rect(0, cy+off_y, w+off_x, h)).copyTo(
+			result(cv::Rect(cx, 0, w+off_x, h))
 		);
 
-		image = result;
-		return;
+		return result;
+	}
+
+	/**Inversa de fft_shift
+	 * idéntica a ésta si la dimensión es par
+	 */
+	inline cv::Mat ifft_shift(const cv::Mat &image){
+		cv::Mat result = cv::Mat::zeros(image.size(), image.type());
+		int
+			cx = image.cols/2,
+			cy = image.rows/2,
+			w = cx,
+			h = cy;
+		int
+			off_x = image.cols%2,
+			off_y = image.rows%2;
+
+		//cuadrante 1 -> 3
+		image(cv::Rect(0, 0, w, h)).copyTo(
+			result(cv::Rect(cx+off_x, cy+off_y, w, h))
+		);
+
+		//cuadrante 2 -> 4
+		image(cv::Rect(cx, 0, w+off_x, h)).copyTo(
+			result(cv::Rect(0, cy+off_y, w+off_x, h))
+		);
+
+		//cuadrante 3 -> 1
+		image(cv::Rect(cx, cy, w+off_x, h+off_y)).copyTo(
+			result(cv::Rect(0, 0, w+off_x, h+off_y))
+		);
+
+		//cuadrante 4 -> 2
+		image(cv::Rect(0, cy, w, h+off_y)).copyTo(
+			result(cv::Rect(cx+off_x, 0, w, h+off_y))
+		);
+
+		return result;
 	}
 
 	inline void centre(cv::Mat &image){
+		int
+			cx = image.cols/2,
+			cy = image.rows/2,
+			w = cx,
+			h = cy;
+		int
+			off_x = image.cols%2,
+			off_y = image.rows%2;
+
 		//cuadrantes
 		cv::Mat
 			top_left = cv::Mat(
