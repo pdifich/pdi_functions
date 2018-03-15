@@ -533,23 +533,13 @@ namespace pdi{
 	inline cv::Mat filter_ideal(size_t rows, size_t cols, double corte){
 		cv::Mat
 			magnitud = cv::Mat::zeros(rows, cols, CV_32F);
-		if(cols%2==1 and rows%2==1) //impar, el centro cae en un píxel
-			cv::circle(
-				magnitud,
-				cv::Point(cols/2, rows/2), //punto central
-				rows*corte, //radio
-				cv::Scalar::all(1),
-				-1 //círculo relleno
-			);
-		else{
-			double limit = square(corte*rows);
-			for(size_t K=0; K<rows; ++K)
-				for(size_t L=0; L<cols; ++L){
-					double d2 = distance2(K+.5, L+.5, rows/2, cols/2);
-					if(d2 <= limit)
-						magnitud.at<float>(K,L) = 1;
-				}
-		}
+		cv::circle(
+			magnitud,
+			cv::Point(cols/2, rows/2), //punto central
+			rows*corte, //radio
+			cv::Scalar::all(1),
+			-1 //círculo relleno
+		);
 
 		magnitud = ifft_shift(magnitud);
 		return magnitud;
