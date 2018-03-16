@@ -7,7 +7,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-/**Funciones auxiliares
+/**Funciones auxiliares C++
  */
 namespace pdi{
 	typedef unsigned char byte;
@@ -44,8 +44,7 @@ namespace pdi{
 	 */
 	cv::Mat ifft_shift(const cv::Mat &image);
 
-	/**Desplaza la imagen de modo que el la componente f0 ocupe el píxel central
-	Usado para visualizar la transformada de Fourier.
+	/**Igual que fft_shift
 	*/
 	void centre(cv::Mat &imagen);
 
