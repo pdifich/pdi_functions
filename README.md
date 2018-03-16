@@ -24,4 +24,5 @@ source ~/.local/share/gdb/opencv.gdb
 (gdb) pmat image float
 ```
 
->> _Para generar un html con la documentación utilícese `doxygen`_
+## Documentación
+Para generar un html con la documentación utilícese `doxygen`
