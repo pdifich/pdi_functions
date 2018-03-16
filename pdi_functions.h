@@ -44,6 +44,11 @@ namespace pdi{
 	 */
 	cv::Mat ifft_shift(const cv::Mat &image);
 
+	/**Desplaza la imagen de modo que el la componente f0 ocupe el píxel central
+	Usado para visualizar la transformada de Fourier.
+	*/
+	void centre(cv::Mat &imagen);
+
 	/** Histograma uniforme de una imagen de un canal de 8bits.
 	\param mask permite seleccionar una región a procesar
 	 */
@@ -255,6 +260,10 @@ namespace pdi{
 		);
 
 		return result;
+	}
+
+	void centre(cv::Mat &imagen){
+		imagen = fft_shift(imagen);
 	}
 
 	inline cv::Mat histogram(const cv::Mat &image, int levels, const cv::Mat &mask){
