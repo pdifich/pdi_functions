@@ -1,5 +1,6 @@
 # Conjunto de funciones auxiliares de OpenCV para C++ y Python
 
+
 ## Archivos
 * `pdi_functions.h`: contiene la definición de las funciones dentro del namespace pdi
 ```c++
@@ -22,3 +23,5 @@ source ~/.local/share/gdb/opencv.gdb
 ```sh
 (gdb) pmat image float
 ```
+
+>> _Para generar un html con la documentación utilícese `doxygen`_
