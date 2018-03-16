@@ -5,44 +5,47 @@
 #                                        #
 ##########################################
 
-
-define pmatrix
+define pmat
 	if $argc == 0
-		help pmatrix
+		help pmat
 	else
 		set $mat = $arg0
 		set $rows = $mat.rows
 		set $cols = $mat.cols
 		set $size = $rows * $cols
-	end
 
-	print *(($arg1 *) $arg0.data)@$size
+		set $i = 0
+		while $i < $rows
+			output *(($arg1 *)$arg0.data+$i*$rows)@$cols
+			echo '\n'
+			set $i++
+		end
+	end
 end
-document pmatrix
-	Prints cv::Mat data
-	Syntax: pmatrix <Mat> <type>
+document pmat
+	Prints cv::Mat data in a formatted way
+	Syntax: pmat <Mat> <type>
 	Note: type must be the correct type
 end 
 
-define pfmatrix
+define pmatuc
 	if $argc == 0
-		help pmatrix
+		help pmat
 	else
 		set $mat = $arg0
 		set $rows = $mat.rows
 		set $cols = $mat.cols
 		set $size = $rows * $cols
-	end
 
-	set $i = 0
-	while $i < $rows
-		print *(($arg1 *)$arg0.data+$i*$rows)@$cols
-		set $i++
+		set $i = 0
+		while $i < $rows
+			output /u *((uchar *)$arg0.data+$i*$rows)@$cols
+			echo '\n'
+			set $i++
+		end
 	end
 end
-
-document pfmatrix
-	Prints cv::Mat data in a formatted way
-	Syntax: pfmatrix <Mat> <type>
-	Note: type must be the correct type
+document pmatuc
+	Prints a cv::Mat of type unsigned char
+	Syntax: pmatuc <Mat>
 end 
