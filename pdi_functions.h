@@ -35,11 +35,14 @@ namespace pdi{
 	*/
 	void swap_copy(cv::Mat &a, cv::Mat &b);
 
-	/**Desplaza la imagen de modo que el píxel central
-	ocupe la esquina superior izquierda.
+	/**Desplaza la imagen de modo que el la componente f0 ocupe el píxel central
 	Usado para visualizar la transformada de Fourier.
 	*/
-	void centre(cv::Mat &imagen);
+	cv::Mat fft_shift(const cv::Mat &image);
+	/**Función inversa a fft_shift, equivalente a ésta si la dimensión es par
+	 * Utilizado en la creación de filtros
+	 */
+	cv::Mat ifft_shift(const cv::Mat &image);
 
 	/** Histograma uniforme de una imagen de un canal de 8bits.
 	\param mask permite seleccionar una región a procesar
@@ -48,8 +51,8 @@ namespace pdi{
 
 	/**Dibuja un gráfico de líneas en el canvas.
 	 * \param data vector con los valores a graficar,
-	 * rango [0,1] para flotantess o [0,MAX] para enteros, que se mapean del borde inferior al superior.
-	 * \param color, color de las lí
+	 * rango [0,1] para flotantes o [0,MAX] para enteros, que se mapean del borde inferior al superior.
+	 * \param color, color de las líneas
 	 */
 	cv::Mat draw_graph(
 		const cv::Mat &data,
@@ -189,8 +192,6 @@ namespace pdi{
 		temp.copyTo(b);
 	}
 
-	/**Shift the zero-frequency component to the center of the spectrum.
-	 */
 	inline cv::Mat fft_shift(const cv::Mat &image){
 		cv::Mat result = cv::Mat::zeros(image.size(), image.type());
 		int
@@ -222,9 +223,6 @@ namespace pdi{
 		return result;
 	}
 
-	/**Inversa de fft_shift
-	 * idéntica a ésta si la dimensión es par
-	 */
 	inline cv::Mat ifft_shift(const cv::Mat &image){
 		cv::Mat result = cv::Mat::zeros(image.size(), image.type());
 		int
@@ -257,52 +255,6 @@ namespace pdi{
 		);
 
 		return result;
-	}
-
-	inline void centre(cv::Mat &image){
-		int
-			cx = image.cols/2,
-			cy = image.rows/2,
-			w = cx,
-			h = cy;
-		int
-			off_x = image.cols%2,
-			off_y = image.rows%2;
-
-		//cuadrantes
-		cv::Mat
-			top_left = cv::Mat(
-				image,
-				cv::Rect(
-					0, 0,
-					w, h
-				)
-			),
-			top_right = cv::Mat(
-				image,
-				cv::Rect(
-					cx+off_x, 0,
-					w, h
-				)
-			),
-			bottom_left = cv::Mat(
-				image,
-				cv::Rect(
-					0, cy+off_y,
-					w, h
-				)
-			),
-			bottom_right = cv::Mat(
-				image,
-				cv::Rect(
-					cx+off_x, cy+off_y,
-					w, h
-				)
-			);
-
-		//intercambia los cuadrantes
-		swap_copy(top_left, bottom_right);
-		swap_copy(top_right, bottom_left);
 	}
 
 	inline cv::Mat histogram(const cv::Mat &image, int levels, const cv::Mat &mask){
