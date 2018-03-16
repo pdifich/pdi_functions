@@ -63,6 +63,14 @@ namespace pdi{
 		cv::Scalar color = cv::Scalar::all(255)
 	);
 
+	/**Wrapper para poder dibujar datos en un std::vector
+	 */
+	template<class T>
+	cv::Mat draw_graph(
+		const std::vector<T> &data,
+		cv::Scalar color = cv::Scalar::all(255)
+	);
+
 	/**Devuelve un gráfico de líneas comparativo.
 	 */
 	cv::Mat draw_graph(
@@ -301,6 +309,11 @@ namespace pdi{
 		 */
 		template<class T>
 		cv::Mat draw_graph(cv::Mat &canvas, const std::vector<T> &data);
+	}
+
+	template<class T>
+	inline cv::Mat draw_graph(const std::vector<T> &data, cv::Scalar color){
+		return draw_graph(cv::Mat(data), color);
 	}
 
 	inline
@@ -596,5 +609,8 @@ namespace pdi{
 		return transformation;
 	}
 }
+
+/**\example ejemplo.cpp
+ */
 
 #endif /* PDI_FUNCTIONS_H */

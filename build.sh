@@ -7,5 +7,5 @@ if [ "$#" -ne 1 ]; then
 fi
 
 file=$1
-g++ "${file}" -W{all,extra,pedantic} -c -ggdb -std=c++11 -o "${file%.cpp}.o"
+g++ -I . "${file}" -W{all,extra,pedantic} -c -ggdb -std=c++11 -o "${file%.cpp}.o"
 g++ "${file%.cpp}.o" $(pkg-config --libs opencv) -o "${file%.cpp}.bin"
