@@ -269,7 +269,7 @@ namespace pdi{
 		return result;
 	}
 
-	void centre(cv::Mat &imagen){
+	inline void centre(cv::Mat &imagen){
 		imagen = fft_shift(imagen);
 	}
 
