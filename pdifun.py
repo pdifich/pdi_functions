@@ -57,23 +57,16 @@ def filterGaussian(rows,cols,corte):
     corte *= rows
     for k in range(rows):
         for l in range(cols):
-            magnitud[k,l]=np.exp(-dist([k+.5,l+.5],[rows/2,cols/2])/2/corte/corte)
+            magnitud[k,l]=np.exp(-dist([k,l],[rows//2,cols//2])/2/corte/corte)
             
-    return np.fft.fftshift(magnitud)
+    return np.fft.ifftshift(magnitud)
     
         
 def filterIdeal(rows, cols, corte):
     """filtro de magnitud ideal"""
     magnitud = np.zeros((rows, cols))
-    if cols%2==1 and rows%2==1: #impar, el centro cae en un píxel
-        magnitud = cv.circle(magnitud, (cols//2, rows//2), int(rows*corte), 1, -1)
-    else:
-        limit = (corte*rows)**2
-        for k in range(rows):
-            for l in range(cols):
-                d2 = dist([k+.5,l+.5],[rows//2,cols//2])
-                if d2 <= limit:
-                    magnitud[k,l] = 1
+    magnitud = cv.circle(magnitud, (cols//2, rows//2), int(rows*corte), 1, -1)
+
     return np.fft.ifftshift(magnitud)
 	
 def filterButterworth(rows, cols, corte, order):
@@ -84,10 +77,10 @@ def filterButterworth(rows, cols, corte, order):
     corte *= rows;
     for k in range(rows):
         for l in range(cols):
-            d2 = dist([k+.5,l+.5],[rows/2,cols/2])
+            d2 = dist([k,l],[rows//2,cols//2])
             magnitud[k,l] = 1.0/(1 + (d2/corte/corte)**order)
 
-    return np.fft.fftshift(magnitud)
+    return np.fft.ifftshift(magnitud)
 
     
 def motionBlur(size, a,  b):
